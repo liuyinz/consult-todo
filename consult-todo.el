@@ -5,7 +5,7 @@
 ;; Created: 2021-07-17 15:53:46
 ;; Maintainer: 食無魚
 ;; Version: 0.1
-;; Package-Requires: ((emacs "28.0.50") (consult "0.9") (hl-todo "3.1.2"))
+;; Package-Requires: ((emacs "27") (consult "0.9") (hl-todo "3.1.2"))
 ;; Homepage: https://github.com/liuyinz/consult-todo
 ;; License: GPL-3.0-or-later
 
@@ -30,7 +30,19 @@
 
 ;;; Code:
 
+(require 'consult)
+(require 'hl-todo)
 
+(defconst consult-todo--narrow
+  '((?c . "Current")
+    (?b . "Buffers")
+    (?p . "Project")))
+
+(defun consult-todo--candidates ()
+  "Return hl-todo keywards as alist."
+  (consult--forbid-minibuffer)
+  (let* ())
+)
 
 (provide 'consult-todo)
 ;;; consult-todo.el ends here
