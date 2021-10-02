@@ -1,10 +1,11 @@
 ;;; consult-todo.el --- Provide the command `consult-todo' -*- lexical-binding: t -*-
 
-;; Copyright (C) Symbol’s value as variable is void: copyright-current-year 食無魚
-;; Author: 食無魚 <liuyinz@gmail.com>
-;; Created: 2021-07-17 15:53:46
-;; Maintainer: 食無魚
-;; Version: 0.1
+;; Copyright (C) 2021 liuyinz
+
+;; Author: liuyinz <liuyinz@gmail.com>
+;; Maintainer: liuyinz <liuyinz@gmail.com>
+;; Created: 2021-10-03 03:44:36
+;; Version: 0.1.0
 ;; Package-Requires: ((emacs "27") (consult "0.9") (hl-todo "3.1.2"))
 ;; Homepage: https://github.com/liuyinz/consult-todo
 ;; License: GPL-3.0-or-later
@@ -25,8 +26,6 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
-;; Usage:
 
 ;;; Code:
 
