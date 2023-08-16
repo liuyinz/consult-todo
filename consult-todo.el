@@ -103,13 +103,14 @@
                       candidates)))))))
     ;; )
     (setq candidates (reverse candidates))
-    (let ((fmt (consult-todo--format candidates)))
-      (mapcar
-       (pcase-lambda (`(,buffer ,line ,type ,beg ,end ,msg ,narrow))
-         (propertize (format fmt buffer line type msg)
-                     'consult--candidate (list beg (cons 0 (- end beg)))
-                     'consult--type narrow))
-       candidates))))
+    (when candidates
+      (let ((fmt (consult-todo--format candidates)))
+        (mapcar
+         (pcase-lambda (`(,buffer ,line ,type ,beg ,end ,msg ,narrow))
+           (propertize (format fmt buffer line type msg)
+                       'consult--candidate (list beg (cons 0 (- end beg)))
+                       'consult--type narrow))
+         candidates)))))
 
 ;;;###autoload
 (defun consult-todo (&optional project)
