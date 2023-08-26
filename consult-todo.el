@@ -31,10 +31,10 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl-lib)
+                   (require 'pcase))
 (require 'consult)
 (require 'hl-todo)
-
-(eval-when-compile (require 'pcase))
 
 (defgroup consult-todo nil
   "Search hl-todo keywords in consult."
@@ -64,53 +64,45 @@
 
 (defun consult-todo--candidates-buffer ()
   "Return list of hl-todo keywords in current buffer."
-  (let* ((buffer (current-buffer))
-         (regex (hl-todo--regexp))
-         (candidates '()))
-    (with-current-buffer buffer
-      (save-excursion
-        (save-restriction
-          (widen)
-          (goto-char (point-min))
-          (let ((case-fold-search nil))
-            (while (re-search-forward regex nil t)
-              ;; whether point in comment area
-              (when (nth 4 (syntax-ppss))
-                (let* ((end (match-end 0))
-                       (type (match-string 0)))
-                  (push (list (buffer-name buffer)
-                              (line-number-at-pos)
-                              type
-                              (match-beginning 0)
-                              end
-                              (string-trim (buffer-substring end (line-end-position)))
-                              (or (car (rassoc (substring-no-properties type)
-                                               (consult-todo--narrow-setup)))
-                                  consult-todo-narrow-other))
-                        candidates))))))))
-    (reverse candidates)))
+  (with-current-buffer (current-buffer)
+    (save-excursion
+      (save-restriction
+        (widen)
+        (goto-char (point-min))
+        (cl-loop while (re-search-forward (hl-todo--regexp) nil t)
+                 with case-fold-search = nil
+                 when (nth 4 (syntax-ppss))
+                 collect
+                 (list (buffer-name)
+                       (line-number-at-pos)
+                       (match-string 0)
+                       (match-beginning 0)
+                       (match-end 0)
+                       (or (car (rassoc (match-string-no-properties 0)
+                                        (consult-todo--narrow-setup)))
+                           consult-todo-narrow-other)
+                       (string-trim (buffer-substring-no-properties
+                                     (point)
+                                     (line-end-position)))))))))
 
 (defun consult-todo--format (candidates)
   "Return formatted string according to CANDIDATES."
   (when candidates
-    (let (lst)
-      (dotimes (i 3)
-        (push (apply #'max
-                     (mapcar (lambda (x)
-                               (let ((elt (nth i x)))
-                                 (length (if (stringp elt)
-                                             elt
-                                           (number-to-string elt)))))
-                             candidates))
-              lst))
-      (mapcar
-       (pcase-lambda (`(,buffer ,line ,type ,beg ,end ,msg ,narrow))
-         (propertize (format (apply #'format "%%-%ds %%-%dd  %%-%ds  %%s"
-                                    (reverse lst))
-                             buffer line type msg)
-                     'consult--candidate (list beg (cons 0 (- end beg)))
-                     'consult--type narrow))
-       candidates))))
+    (mapcar
+     (pcase-lambda (`(,buffer ,line ,type ,beg ,end ,narrow ,text))
+       (propertize
+        (format (apply #'format "%%-%ds %%-%dd  %%-%ds  %%s"
+                       (cl-loop for i to 2
+                                collect
+                                (cl-loop for y in (mapcar (apply-partially #'nth i)
+                                                          candidates)
+                                         maximize
+                                         (length (or (and (stringp y) y)
+                                                     (number-to-string y))))))
+                buffer line type text)
+        'consult--candidate (list beg (cons 0 (- end beg)))
+        'consult--type narrow))
+     candidates)))
 
 ;;;###autoload
 (defun consult-todo (&optional project)
