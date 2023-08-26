@@ -77,15 +77,15 @@
               ;; whether point in comment area
               (when (nth 4 (syntax-ppss))
                 (let* ((end (match-end 0))
-                       (type (match-string 0))
-                       (type-1 (substring-no-properties type)))
+                       (type (match-string 0)))
                   (push (list (buffer-name buffer)
                               (line-number-at-pos)
                               type
                               (match-beginning 0)
-                              (match-end 0)
+                              end
                               (string-trim (buffer-substring end (line-end-position)))
-                              (or (car (rassoc type-1 (consult-todo--narrow-setup)))
+                              (or (car (rassoc (substring-no-properties type)
+                                               (consult-todo--narrow-setup)))
                                   consult-todo-narrow-other))
                         candidates))))))))
     (reverse candidates)))
@@ -105,7 +105,8 @@
               lst))
       (mapcar
        (pcase-lambda (`(,buffer ,line ,type ,beg ,end ,msg ,narrow))
-         (propertize (format (apply #'format "%%-%ds %%-%dd %%-%ds %%s" (reverse lst))
+         (propertize (format (apply #'format "%%-%ds %%-%dd  %%-%ds  %%s"
+                                    (reverse lst))
                              buffer line type msg)
                      'consult--candidate (list beg (cons 0 (- end beg)))
                      'consult--type narrow))
