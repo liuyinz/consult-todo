@@ -58,9 +58,26 @@
     (?h . "HACK"))
   "Default mapping of narrow and keywords.")
 
-(defun consult-todo--narrow-setup ()
+(defvar consult-todo--narrow-extend nil
+  "Default mapping of narrow and keywords include OTHER if exists.")
+
+(defun consult-todo--narrow ()
   "Return narrow alist."
   (or consult-todo-narrow consult-todo--narrow))
+
+(defun consult-todo--narrow-extend ()
+  "Return narrow alist include `consult-todo-other' if it's non-nil."
+  (when (and consult-todo-other
+             (or (not (characterp consult-todo-other))
+                 (memq consult-todo-other (mapcar #'car (consult-todo--narrow)))))
+    (user-error "Consult-todo-other: key '%s' is not char or conflicts with other keys"
+                (single-key-description consult-todo-other)))
+  (or consult-todo--narrow-extend
+      (setq consult-todo--narrow-extend
+            (if (null consult-todo-other)
+                consult-todo--narrow
+              (cons (cons consult-todo-other "OTHER")
+                    (consult-todo--narrow))))))
 
 (defun consult-todo--candidates (&optional buffers)
   "Return list of hl-todo keywords in current buffer.
@@ -81,7 +98,7 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
                                 (match-string-no-properties 0)
                                 (copy-marker (match-beginning 0))
                                 (or (car (rassoc (match-string-no-properties 0)
-                                                 (consult-todo--narrow-setup)))
+                                                 (consult-todo--narrow)))
                                     consult-todo-other)
                                 (string-trim (buffer-substring-no-properties
                                               (point)
@@ -100,10 +117,10 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
                                                     candidates))))
                   (propertize buffer 'face 'consult-file)
                   (propertize line   'face 'consult-line-number)
+                  ;; WONTFIX don't support regexp keywords face
                   (propertize type   'face (hl-todo--combine-face
                                             (cdr (assoc type hl-todo-keyword-faces))))
                   text)
-
           'consult-location (cons marker line)
           'consult--type narrow))
        candidates)
@@ -115,18 +132,14 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
 If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
   (interactive "P")
   (consult--forbid-minibuffer)
-  (when (member consult-todo-other
-                (mapcar #'car (consult-todo--narrow-setup)))
-    (error "Consult-todo: narrow keys repeat!"))
   (consult--read
    (consult-todo--format (consult-todo--candidates buffers))
    :prompt "Go to hl-todo: "
    :category 'consult-location
    :require-match t
    :sort nil
-   :group (consult--type-group (consult-todo--narrow-setup))
-   :narrow (consult--type-narrow (cons (cons consult-todo-other "Other")
-                                       (consult-todo--narrow-setup)))
+   :group (consult--type-group (consult-todo--narrow-extend))
+   :narrow (consult--type-narrow (consult-todo--narrow-extend))
    :lookup #'consult--lookup-location
    :state (consult--jump-state)))
 
