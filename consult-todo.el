@@ -46,9 +46,9 @@
                        (string :tag "Keyword")))
   :group 'consult-todo)
 
-(defcustom consult-todo-other ?.
-  "Character used to narrow other keywords which aren't mapped."
-  :type 'character
+(defcustom consult-todo-other (cons ?. "OTHER")
+  "Character used to narrow missing keywords."
+  :type '(cons character string)
   :group 'consult-todo)
 
 (defconst consult-todo--narrow
@@ -61,23 +61,34 @@
 (defvar consult-todo--narrow-extend nil
   "Default mapping of narrow and keywords include OTHER if exists.")
 
+(defvar consult-todo--regexp nil)
+
 (defun consult-todo--narrow ()
   "Return narrow alist."
   (or consult-todo-narrow consult-todo--narrow))
 
 (defun consult-todo--narrow-extend ()
   "Return narrow alist include `consult-todo-other' if it's non-nil."
-  (when (and consult-todo-other
-             (or (not (characterp consult-todo-other))
-                 (memq consult-todo-other (mapcar #'car (consult-todo--narrow)))))
-    (user-error "Consult-todo-other: key '%s' is not char or conflicts with other keys"
-                (single-key-description consult-todo-other)))
   (or consult-todo--narrow-extend
-      (setq consult-todo--narrow-extend
-            (if (null consult-todo-other)
-                consult-todo--narrow
-              (cons (cons consult-todo-other "OTHER")
-                    (consult-todo--narrow))))))
+      (if-let* (((consp consult-todo-other))
+                (narrow (car consult-todo-other))
+                (group (cdr consult-todo-other))
+                ((and (characterp narrow) (not (assoc narrow (consult-todo--narrow)))))
+                ((and (stringp group) (not (rassoc group (consult-todo--narrow))))))
+          (setq consult-todo--narrow-extend
+                (cons consult-todo-other (consult-todo--narrow)))
+        (user-error "Consult-todo-other: format error or conflicts with consult-todo-narrow")
+        (setq consult-todo--narrow-extend nil))))
+
+(defun consult-todo--regexp ()
+  "Return regexp used to search to-do keywords."
+  (or consult-todo--regexp
+      (let ((orig hl-todo--regexp)
+            ;; NOTE match punctuations followed as possible
+            (hl-todo-require-punctuation nil)
+            (hl-todo-highlight-punctuation "[:punct:]"))
+        (setq consult-todo--regexp (hl-todo--setup-regexp))
+        (setq hl-todo--regexp orig))))
 
 (defun consult-todo--candidates (&optional buffers)
   "Return list of hl-todo keywords in current buffer.
@@ -89,19 +100,19 @@ If optional argument BUFFERS is non-nil, operate on list of them."
                (save-restriction
                  (widen)
                  (goto-char (point-min))
-                 (cl-loop while (re-search-forward (hl-todo--regexp) nil t)
+                 (cl-loop while (re-search-forward (consult-todo--regexp) nil t)
                           with case-fold-search = nil
                           when (nth 4 (syntax-ppss))
                           collect
                           (list (buffer-name)
                                 (number-to-string (line-number-at-pos))
-                                (match-string-no-properties 0)
+                                (match-string-no-properties 2)
                                 (copy-marker (match-beginning 0))
-                                (or (car (rassoc (match-string-no-properties 0)
-                                                 (consult-todo--narrow)))
-                                    consult-todo-other)
+                                (car (or (rassoc (match-string-no-properties 2)
+                                                 (consult-todo--narrow))
+                                         consult-todo-other))
                                 (string-trim (buffer-substring-no-properties
-                                              (point)
+                                              (match-end 0)
                                               (line-end-position))))))))))
 
 (defun consult-todo--format (candidates)
