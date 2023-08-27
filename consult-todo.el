@@ -87,8 +87,9 @@
             ;; NOTE match punctuations followed as possible
             (hl-todo-require-punctuation nil)
             (hl-todo-highlight-punctuation "[:punct:]"))
-        (setq consult-todo--regexp (hl-todo--setup-regexp))
-        (setq hl-todo--regexp orig))))
+        (prog1
+            (setq consult-todo--regexp (hl-todo--setup-regexp))
+          (setq-local hl-todo--regexp orig)))))
 
 (defun consult-todo--candidates (&optional buffers)
   "Return list of hl-todo keywords in current buffer.
