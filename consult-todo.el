@@ -84,7 +84,7 @@
   "Return regexp used to search to-do keywords."
   (or consult-todo--regexp
       (let ((orig hl-todo--regexp)
-            ;; NOTE match punctuations followed as possible
+            ;; NOTE match punctuation followed as possible
             (hl-todo-require-punctuation nil)
             (hl-todo-highlight-punctuation "[:punct:]"))
         (prog1
@@ -95,6 +95,8 @@
   "Return list of hl-todo keywords in current buffer.
 If optional argument BUFFERS is non-nil, operate on list of them."
   (cl-loop for buf in (or buffers (list (current-buffer)))
+           ;; with gc-cons-threshold = most-positive-fixnum
+           ;; with gc-cons-percentage = 1.0
            append
            (with-current-buffer buf
              (save-excursion
@@ -105,16 +107,26 @@ If optional argument BUFFERS is non-nil, operate on list of them."
                           with case-fold-search = nil
                           when (nth 4 (syntax-ppss))
                           collect
-                          (list (buffer-name)
-                                (number-to-string (line-number-at-pos))
-                                (match-string-no-properties 2)
-                                (copy-marker (match-beginning 0))
-                                (car (or (rassoc (match-string-no-properties 2)
-                                                 (consult-todo--narrow))
-                                         consult-todo-other))
-                                (string-trim (buffer-substring-no-properties
-                                              (match-end 0)
-                                              (line-end-position))))))))))
+                          ;; HACK when buffer is too large, match-string return nil
+                          ;; in one match, use thing-at-point to get the match-string
+                          ;; as type. At this failed match, point is still accurate,
+                          ;; match-begin and match-end is limit to accessible portion
+                          ;; of buffer
+                          (let ((type (or (match-string-no-properties 2)
+                                          (save-excursion
+                                            (backward-to-word)
+                                            (substring-no-properties
+                                             (save-match-data
+                                               (thing-at-point 'word)))))))
+                            (list (buffer-name)
+                                  (number-to-string (line-number-at-pos))
+                                  type
+                                  (copy-marker (point))
+                                  (car (or (rassoc type (consult-todo--narrow))
+                                           consult-todo-other))
+                                  (string-trim (buffer-substring-no-properties
+                                                (point)
+                                                (line-end-position)))))))))))
 
 (defun consult-todo--format (candidates)
   "Return formatted string according to CANDIDATES."
