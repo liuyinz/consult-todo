@@ -65,7 +65,7 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
   "Default mapping of narrow and keywords.")
 ```
 
-- `consult-todo-other`: Narrow for other keywords which are not included in `consult-todo-narrow`, use `.` by default.
+- `consult-todo-other`: Concell for other missing keywords, default value `(?. . "OTHER")` by default.
 
 ## License
 
