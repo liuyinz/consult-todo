@@ -62,28 +62,31 @@
   "Return narrow alist."
   (or consult-todo-narrow-alist consult-todo--narrow))
 
-(defun consult-todo--candidates-buffer ()
-  "Return list of hl-todo keywords in current buffer."
-  (with-current-buffer (current-buffer)
-    (save-excursion
-      (save-restriction
-        (widen)
-        (goto-char (point-min))
-        (cl-loop while (re-search-forward (hl-todo--regexp) nil t)
-                 with case-fold-search = nil
-                 when (nth 4 (syntax-ppss))
-                 collect
-                 (list (buffer-name)
-                       (line-number-at-pos)
-                       (match-string 0)
-                       (match-beginning 0)
-                       (match-end 0)
-                       (or (car (rassoc (match-string-no-properties 0)
-                                        (consult-todo--narrow-setup)))
-                           consult-todo-narrow-other)
-                       (string-trim (buffer-substring-no-properties
-                                     (point)
-                                     (line-end-position)))))))))
+(defun consult-todo--candidates (&optional buffers)
+  "Return list of hl-todo keywords in current buffer.
+If optional argument BUFFERS is non-nil, oprate on list of them."
+  (cl-loop for buf in (or buffers (list (current-buffer)))
+           append
+           (with-current-buffer buf
+             (save-excursion
+               (save-restriction
+                 (widen)
+                 (goto-char (point-min))
+                 (cl-loop while (re-search-forward (hl-todo--regexp) nil t)
+                          with case-fold-search = nil
+                          when (nth 4 (syntax-ppss))
+                          collect
+                          (list (buffer-name)
+                                (line-number-at-pos)
+                                (match-string 0)
+                                (match-beginning 0)
+                                (match-end 0)
+                                (or (car (rassoc (match-string-no-properties 0)
+                                                 (consult-todo--narrow-setup)))
+                                    consult-todo-narrow-other)
+                                (string-trim (buffer-substring-no-properties
+                                              (point)
+                                              (line-end-position))))))))))
 
 (defun consult-todo--format (candidates)
   "Return formatted string according to CANDIDATES."
@@ -105,20 +108,16 @@
      candidates)))
 
 ;;;###autoload
-(defun consult-todo (&optional project)
-  "Jump to hl-todo keywords.
-If PROJECT is non-nil, then prompt with hl-todo keywords from all files in
-PROJECT instead of the current buffer."
+(defun consult-todo (&optional buffers)
+  "Jump to hl-todo keywords in current buffer.
+If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
   (interactive "P")
   (consult--forbid-minibuffer)
-  (when (member consult-todo-narrow-other (mapcar #'car (consult-todo--narrow-setup)))
+  (when (member consult-todo-narrow-other
+                (mapcar #'car (consult-todo--narrow-setup)))
     (error "Consult-todo: narrow keys repeat!"))
   (consult--read
-   (consult-todo--format
-    (if project
-        ;; TODO add project functions
-        (error "Consult-todo: project searching is not available yet")
-      (consult-todo--candidates-buffer)))
+   (consult-todo--format (consult-todo--candidates buffers))
    :prompt "Hl-todo: "
    :category 'consult-todo
    :require-match t
@@ -128,6 +127,12 @@ PROJECT instead of the current buffer."
                                        (consult-todo--narrow-setup)))
    :lookup #'consult--lookup-candidate
    :state (consult--jump-state)))
+
+;;;###autoload
+(defun consult-todo-all ()
+  "Jump to hl-todo keywords in all live buffers."
+  (interactive)
+  (consult-todo (buffer-list)))
 
 (provide 'consult-todo)
 ;;; consult-todo.el ends here

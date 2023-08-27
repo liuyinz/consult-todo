@@ -3,7 +3,7 @@
 [![License GPL 3](https://img.shields.io/badge/license-GPL_3-green.svg?style=flat)](LICENSE)
 [![MELPA](http://melpa.org/packages/consult-todo-badge.svg)](http://melpa.org/#/consult-todo)
 
-Search and jump hl-todo keywords in buffer and project with consult.
+Search and jump hl-todo keywords in buffers with consult.
 
 <!-- markdown-toc start -->
 
@@ -15,7 +15,6 @@ Search and jump hl-todo keywords in buffer and project with consult.
     - [package](#package)
   - [Usage](#usage)
   - [Customization](#customization)
-  - [Todo](#todo)
   - [License](#license)
 
 <!-- markdown-toc end -->
@@ -49,6 +48,10 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 (use-package consult-todo :demand t)
 ```
 
+- `consult-todo`: Jump to hl-todo keywords in current buffer.
+
+- `consult-todo-all`: Jump to hl-todo keywords in all live buffers.
+
 ## Customization
 
 - `consult-todo-narrow-alist`: Mapping of narrows and keywords, if it's nil, use default value below instead.
@@ -64,12 +67,8 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 
 - `consult-todo-narrow-other`: Narrow for other keywords which are not included in `consult-todo-narrow-alist`, use `.` by default.
 
-## Todo
-
-- [ ] Implement project searching for TODO keywords
-
 ## License
 
 See [LICENSE](LICENSE).
 
-[melpa]: http://melpa.org/#/binky
+[melpa]: http://melpa.org/#/consult-todo
