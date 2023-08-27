@@ -10,6 +10,7 @@ Search and jump hl-todo keywords in buffers with consult.
 ## Contents
 
 - [consult-todo](#consult-todo)
+  - [Screenshot](#screenshot)
   - [Install](#install)
     - [dependencies](#dependencies)
     - [package](#package)
@@ -18,6 +19,16 @@ Search and jump hl-todo keywords in buffers with consult.
   - [License](#license)
 
 <!-- markdown-toc end -->
+
+## Screenshot
+
+- Call `M-x consult-todo`
+
+![consult-todo](image/consult-todo.jpg)
+
+- Call `M-x consult-todo-all`
+
+![consult-todo-all](image/consult-todo-all.jpg)
 
 ## Install
 
