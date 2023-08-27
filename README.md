@@ -23,7 +23,7 @@ Search and jump hl-todo keywords in buffers with consult.
 
 ### dependencies
 
-- Emacs, version >= 26.3
+- Emacs, version >= 27.1
 - [hl-todo](https://github.com/tarsius/hl-todo)
 - [consult](https://github.com/minad/consult)
 
