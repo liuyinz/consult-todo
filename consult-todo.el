@@ -58,9 +58,20 @@
     (?h . "HACK"))
   "Default mapping of narrow and keywords.")
 
+(defvar consult-todo--keywords nil)
+
 (defun consult-todo--narrow-setup ()
   "Return narrow alist."
   (or consult-todo-narrow-alist consult-todo--narrow))
+(defun consult-todo--keywords ()
+  "Initiali."
+  (or consult-todo--keywords
+      (setq consult-todo--keywords
+            (mapcar (pcase-lambda (`(,keyword . ,face))
+                      (and (equal (regexp-quote keyword) keyword)
+                           (cons keyword (propertize keyword 'face
+                                                     (hl-todo--combine-face face)))))
+                    hl-todo-keyword-faces))))
 
 (defun consult-todo--candidates (&optional buffers)
   "Return list of hl-todo keywords in current buffer.
@@ -78,7 +89,8 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
                           collect
                           (list (buffer-name)
                                 (line-number-at-pos)
-                                (match-string 0)
+                                (cdr (assoc (match-string-no-properties 0)
+                                            (consult-todo--keywords)))
                                 (match-beginning 0)
                                 (match-end 0)
                                 (or (car (rassoc (match-string-no-properties 0)
