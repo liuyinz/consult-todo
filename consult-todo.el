@@ -81,7 +81,7 @@
 
 (defun consult-todo--candidates (&optional buffers)
   "Return list of hl-todo keywords in current buffer.
-If optional argument BUFFERS is non-nil, oprate on list of them."
+If optional argument BUFFERS is non-nil, operate on list of them."
   (cl-loop for buf in (or buffers (list (current-buffer)))
            append
            (with-current-buffer buf
