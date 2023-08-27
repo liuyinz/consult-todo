@@ -54,7 +54,7 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 
 ## Customization
 
-- `consult-todo-narrow-alist`: Mapping of narrows and keywords, if it's nil, use default value below instead.
+- `consult-todo-narrow`: Mapping of narrows and keywords, if it's nil, use default value below instead.
 
 ```emacs-lisp
 (defconst consult-todo--narrow
@@ -65,7 +65,7 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
   "Default mapping of narrow and keywords.")
 ```
 
-- `consult-todo-narrow-other`: Narrow for other keywords which are not included in `consult-todo-narrow-alist`, use `.` by default.
+- `consult-todo-other`: Narrow for other keywords which are not included in `consult-todo-narrow`, use `.` by default.
 
 ## License
 

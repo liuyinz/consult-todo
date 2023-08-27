@@ -40,13 +40,13 @@
   "Search hl-todo keywords in consult."
   :group 'consult-todo)
 
-(defcustom consult-todo-narrow-alist nil
+(defcustom consult-todo-narrow nil
   "Alist of (NARROW . KEYWORD) to display."
   :type '(repeat (cons (character :tag "Narrow")
                        (string :tag "Keyword")))
   :group 'consult-todo)
 
-(defcustom consult-todo-narrow-other ?.
+(defcustom consult-todo-other ?.
   "Character used to narrow other keywords which aren't mapped."
   :type 'character
   :group 'consult-todo)
@@ -62,7 +62,8 @@
 
 (defun consult-todo--narrow-setup ()
   "Return narrow alist."
-  (or consult-todo-narrow-alist consult-todo--narrow))
+  (or consult-todo-narrow consult-todo--narrow))
+
 (defun consult-todo--keywords ()
   "Initiali."
   (or consult-todo--keywords
@@ -95,7 +96,7 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
                                 (match-end 0)
                                 (or (car (rassoc (match-string-no-properties 0)
                                                  (consult-todo--narrow-setup)))
-                                    consult-todo-narrow-other)
+                                    consult-todo-other)
                                 (string-trim (buffer-substring-no-properties
                                               (point)
                                               (line-end-position))))))))))
@@ -126,7 +127,7 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
 If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
   (interactive "P")
   (consult--forbid-minibuffer)
-  (when (member consult-todo-narrow-other
+  (when (member consult-todo-other
                 (mapcar #'car (consult-todo--narrow-setup)))
     (error "Consult-todo: narrow keys repeat!"))
   (consult--read
@@ -136,7 +137,7 @@ If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
    :require-match t
    :sort nil
    :group (consult--type-group (consult-todo--narrow-setup))
-   :narrow (consult--type-narrow (cons (cons consult-todo-narrow-other "Other")
+   :narrow (consult--type-narrow (cons (cons consult-todo-other "Other")
                                        (consult-todo--narrow-setup)))
    :lookup #'consult--lookup-candidate
    :state (consult--jump-state)))
