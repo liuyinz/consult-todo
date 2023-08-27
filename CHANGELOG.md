@@ -1,4 +1,15 @@
 # Changelog
+# [0.2.0](https://github.com/liuyinz/emacs.d/compare/v0.1.0...v0.2.0) (2023-08-27)
+
+
+### Bug Fixes
+
+* regexp match error when keywords followed by punctuations ([c57011c](https://github.com/liuyinz/emacs.d/commit/c57011c57199d6236b51cf0c0c4d452297e15c8d))
+* search failed when the buffer size is too large ([f8537b6](https://github.com/liuyinz/emacs.d/commit/f8537b690a29173f6ea5eb65b1aed667f13a64ae))
+* wrong value when initializeing consult-todo--regexp ([e5b5356](https://github.com/liuyinz/emacs.d/commit/e5b53568bbcca3973219cc9a842866eb8e015176))
+
+
+
 # 0.1.0 (2023-08-27)
 
 
