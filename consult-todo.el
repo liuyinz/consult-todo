@@ -90,22 +90,23 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
 
 (defun consult-todo--format (candidates)
   "Return formatted string according to CANDIDATES."
-  (when candidates
-    (mapcar
-     (pcase-lambda (`(,buffer ,line ,type ,beg ,end ,narrow ,text))
-       (propertize
-        (format (apply #'format "%%-%ds %%-%dd  %%-%ds  %%s"
-                       (cl-loop for i to 2
-                                collect
-                                (cl-loop for y in (mapcar (apply-partially #'nth i)
-                                                          candidates)
-                                         maximize
-                                         (length (or (and (stringp y) y)
-                                                     (number-to-string y))))))
-                buffer line type text)
-        'consult--candidate (list beg (cons 0 (- end beg)))
-        'consult--type narrow))
-     candidates)))
+  (if candidates
+      (mapcar
+       (pcase-lambda (`(,buffer ,line ,type ,beg ,end ,narrow ,text))
+         (propertize
+          (format (apply #'format "%%-%ds %%-%dd  %%-%ds  %%s"
+                         (cl-loop for i to 2
+                                  collect
+                                  (cl-loop for y in (mapcar (apply-partially #'nth i)
+                                                            candidates)
+                                           maximize
+                                           (length (or (and (stringp y) y)
+                                                       (number-to-string y))))))
+                  buffer line type text)
+          'consult--candidate (list beg (cons 0 (- end beg)))
+          'consult--type narrow))
+       candidates)
+    (user-error "No hl-todo keywords")))
 
 ;;;###autoload
 (defun consult-todo (&optional buffers)
