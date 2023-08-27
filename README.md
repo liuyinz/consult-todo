@@ -16,17 +16,18 @@ Search and jump hl-todo keywords in buffers with consult.
     - [package](#package)
   - [Usage](#usage)
   - [Customization](#customization)
+  - [Todo](#todo)
   - [License](#license)
 
 <!-- markdown-toc end -->
 
 ## Screenshot
 
-- Call `M-x consult-todo`
+- `consult-todo`: Jump to hl-todo keywords in current buffer.
 
 ![consult-todo](image/consult-todo.jpg)
 
-- Call `M-x consult-todo-all`
+- `consult-todo-all`: Jump to hl-todo keywords in all live buffers.
 
 ![consult-todo-all](image/consult-todo-all.jpg)
 
@@ -59,10 +60,6 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 (use-package consult-todo :demand t)
 ```
 
-- `consult-todo`: Jump to hl-todo keywords in current buffer.
-
-- `consult-todo-all`: Jump to hl-todo keywords in all live buffers.
-
 ## Customization
 
 - `consult-todo-narrow`: Mapping of narrows and keywords, if it's nil, use default value below instead.
@@ -77,6 +74,10 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 ```
 
 - `consult-todo-other`: Cons for other missing keywords, `(?. . "OTHER")` by default.
+
+## Todo
+
+- [ ] search keywords in all project files
 
 ## License
 
