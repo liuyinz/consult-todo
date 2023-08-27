@@ -58,21 +58,9 @@
     (?h . "HACK"))
   "Default mapping of narrow and keywords.")
 
-(defvar consult-todo--keywords nil)
-
 (defun consult-todo--narrow-setup ()
   "Return narrow alist."
   (or consult-todo-narrow consult-todo--narrow))
-
-(defun consult-todo--keywords ()
-  "Initiali."
-  (or consult-todo--keywords
-      (setq consult-todo--keywords
-            (mapcar (pcase-lambda (`(,keyword . ,face))
-                      (and (equal (regexp-quote keyword) keyword)
-                           (cons keyword (propertize keyword 'face
-                                                     (hl-todo--combine-face face)))))
-                    hl-todo-keyword-faces))))
 
 (defun consult-todo--candidates (&optional buffers)
   "Return list of hl-todo keywords in current buffer.
@@ -89,9 +77,8 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
                           when (nth 4 (syntax-ppss))
                           collect
                           (list (buffer-name)
-                                (line-number-at-pos)
-                                (cdr (assoc (match-string-no-properties 0)
-                                            (consult-todo--keywords)))
+                                (number-to-string (line-number-at-pos))
+                                (match-string-no-properties 0)
                                 (copy-marker (match-beginning 0))
                                 (or (car (rassoc (match-string-no-properties 0)
                                                  (consult-todo--narrow-setup)))
@@ -106,15 +93,17 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
       (mapcar
        (pcase-lambda (`(,buffer ,line ,type ,marker ,narrow ,text))
          (propertize
-          (format (apply #'format "%%-%ds %%-%dd %%-%ds %%s"
+          (format (apply #'format "%%-%ds %%-%ds %%-%ds %%s"
                          (cl-loop for i to 2
-                                  collect
-                                  (cl-loop for y in (mapcar (apply-partially #'nth i)
-                                                            candidates)
-                                           maximize
-                                           (length (or (and (stringp y) y)
-                                                       (number-to-string y))))))
-                  buffer line type text)
+                                  collect (seq-max (mapcar
+                                                    (lambda(x) (length (nth i x)))
+                                                    candidates))))
+                  (propertize buffer 'face 'consult-file)
+                  (propertize line   'face 'consult-line-number)
+                  (propertize type   'face (hl-todo--combine-face
+                                            (cdr (assoc type hl-todo-keyword-faces))))
+                  text)
+
           'consult-location (cons marker line)
           'consult--type narrow))
        candidates)
