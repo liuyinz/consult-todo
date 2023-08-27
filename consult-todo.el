@@ -92,8 +92,7 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
                                 (line-number-at-pos)
                                 (cdr (assoc (match-string-no-properties 0)
                                             (consult-todo--keywords)))
-                                (match-beginning 0)
-                                (match-end 0)
+                                (copy-marker (match-beginning 0))
                                 (or (car (rassoc (match-string-no-properties 0)
                                                  (consult-todo--narrow-setup)))
                                     consult-todo-other)
@@ -105,9 +104,9 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
   "Return formatted string according to CANDIDATES."
   (if candidates
       (mapcar
-       (pcase-lambda (`(,buffer ,line ,type ,beg ,end ,narrow ,text))
+       (pcase-lambda (`(,buffer ,line ,type ,marker ,narrow ,text))
          (propertize
-          (format (apply #'format "%%-%ds %%-%dd  %%-%ds  %%s"
+          (format (apply #'format "%%-%ds %%-%dd %%-%ds %%s"
                          (cl-loop for i to 2
                                   collect
                                   (cl-loop for y in (mapcar (apply-partially #'nth i)
@@ -116,7 +115,7 @@ If optional argument BUFFERS is non-nil, oprate on list of them."
                                            (length (or (and (stringp y) y)
                                                        (number-to-string y))))))
                   buffer line type text)
-          'consult--candidate (list beg (cons 0 (- end beg)))
+          'consult-location (cons marker line)
           'consult--type narrow))
        candidates)
     (user-error "No hl-todo keywords")))
@@ -132,14 +131,14 @@ If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
     (error "Consult-todo: narrow keys repeat!"))
   (consult--read
    (consult-todo--format (consult-todo--candidates buffers))
-   :prompt "Hl-todo: "
-   :category 'consult-todo
+   :prompt "Go to hl-todo: "
+   :category 'consult-location
    :require-match t
    :sort nil
    :group (consult--type-group (consult-todo--narrow-setup))
    :narrow (consult--type-narrow (cons (cons consult-todo-other "Other")
                                        (consult-todo--narrow-setup)))
-   :lookup #'consult--lookup-candidate
+   :lookup #'consult--lookup-location
    :state (consult--jump-state)))
 
 ;;;###autoload
