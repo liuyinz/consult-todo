@@ -47,8 +47,9 @@ Clone and add to `load-path`, require the package.
 
 - Melpa
 
-This package is available on [MELPA].
-Install with `M-x package-install` `RET` `consult-todo` within Emacs.
+**Warning** : this package is not available on [MELPA] now. PR not merged yet, wait a day or two.
+
+~~Install with `M-x package-install` `RET` `consult-todo` within Emacs.~~
 
 ## Usage
 
