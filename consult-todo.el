@@ -47,7 +47,7 @@
   :group 'consult-todo)
 
 (defcustom consult-todo-other (cons ?. "OTHER")
-  "Character used to narrow missing keywords."
+  "Cons mapping for narrow and missing keywords."
   :type '(cons character string)
   :group 'consult-todo)
 
