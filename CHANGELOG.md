@@ -1,27 +1,62 @@
 # Changelog
-# [0.2.0](https://github.com/liuyinz/emacs.d/compare/v0.1.0...v0.2.0) (2023-08-27)
 
+## [unreleased]
+
+### Documentation
+
+- **(CHANGELOG)** regenerate changelog with git-cliff - ([c8c5cf7](https://github.com/liuyinz/consult-todo/commit/c8c5cf746561c6615f8d6e2206fe2c95e68da0a0))
+- **(README)** update README - ([72c63d5](https://github.com/liuyinz/consult-todo/commit/72c63d57b826d44cffb17b1d7895f94a6392c9af))
+- **(README)** add Todo list - ([973d413](https://github.com/liuyinz/consult-todo/commit/973d413e9ba8d72a6f32a61507a3362baca80279))
+- **(README)** update install informations - ([c3c5053](https://github.com/liuyinz/consult-todo/commit/c3c50533aec82522f63ba2903a61bf510eea46f2))
+
+### Miscellaneous Chores
+
+- **(changelog)** add config cliff.toml - ([37de75c](https://github.com/liuyinz/consult-todo/commit/37de75c50462ccf8e4119bfe5fc4eb84e6ef6719))
+- add images and update README - ([7e79bc2](https://github.com/liuyinz/consult-todo/commit/7e79bc2584252f9e9786ee20f4e87c2ee565e71d))
+
+## [0.2.0](https://github.com/liuyinz/consult-todo/compare/v0.1.0..v0.2.0) - 2023-09-03
 
 ### Bug Fixes
 
-* regexp match error when keywords followed by punctuations ([c57011c](https://github.com/liuyinz/emacs.d/commit/c57011c57199d6236b51cf0c0c4d452297e15c8d))
-* search failed when the buffer size is too large ([f8537b6](https://github.com/liuyinz/emacs.d/commit/f8537b690a29173f6ea5eb65b1aed667f13a64ae))
-* wrong value when initializeing consult-todo--regexp ([e5b5356](https://github.com/liuyinz/emacs.d/commit/e5b53568bbcca3973219cc9a842866eb8e015176))
+- regexp match error when keywords followed by punctuations - ([e284400](https://github.com/liuyinz/consult-todo/commit/e2844004a54a7b9715d5832161805d67c2cc092a))
+- wrong value when initializeing consult-todo--regexp - ([978a1c1](https://github.com/liuyinz/consult-todo/commit/978a1c193ee9a23a91340ba54ebde742e70f16ec))
+- search failed when the buffer size is too large - ([490b930](https://github.com/liuyinz/consult-todo/commit/490b930325f7a79c814efbb824897a9c2cff88b5))
 
+### Documentation
 
+- update README - ([e34d97d](https://github.com/liuyinz/consult-todo/commit/e34d97d3e004cde5f0360ca1a4ea3e8e7cc4fa14))
 
-# 0.1.0 (2023-08-27)
-
+## [0.1.0] - 2023-09-03
 
 ### Bug Fixes
 
-* error when candidates is nil ([4eba79b](https://github.com/liuyinz/emacs.d/commit/4eba79bba448aa84dc08a18d797964a47f34d18c))
-* exit consult when no keywords found ([ba678dc](https://github.com/liuyinz/emacs.d/commit/ba678dc9b81d2b87d3243e9fc5331e3ead75d7c3))
-* jump to wrong place in consult-todo-all ([803f8e4](https://github.com/liuyinz/emacs.d/commit/803f8e4f685e1161e8257ed836922adfd49d4cdf))
-* keyword face error when search unfont locked text ([46ca0ee](https://github.com/liuyinz/emacs.d/commit/46ca0ee0e73c7037698bd56cb8b37ecd89df1231))
+- error when candidates is nil - ([7c496ba](https://github.com/liuyinz/consult-todo/commit/7c496ba8caec858d4107dc02845eaebee6a72557))
+- exit consult when no keywords found - ([c4a4f70](https://github.com/liuyinz/consult-todo/commit/c4a4f70e4f8b47bdada8b5c6b2ec510a2bc84d4d))
+- keyword face error when search unfont locked text - ([da0703d](https://github.com/liuyinz/consult-todo/commit/da0703d9889f1e7c4ced3e435b8da593a169c30b))
+- jump to wrong place in consult-todo-all - ([00c9af9](https://github.com/liuyinz/consult-todo/commit/00c9af9edf92af0d63c5ffeae5d8dba458b6226c))
 
+### Documentation
+
+- add README, gitignore and action - ([b2652e4](https://github.com/liuyinz/consult-todo/commit/b2652e48bf3f1a5090d22cbabf7b89e0a26f51da))
+- add LICENSE - ([4acc600](https://github.com/liuyinz/consult-todo/commit/4acc600fcaf4583360a8a84b4989c5391739ed5a))
+- fix typos - ([acb5052](https://github.com/liuyinz/consult-todo/commit/acb50527407f7034d0a9f9105bd8cf179ca1f712))
 
 ### Features
 
-* add command consult-todo-all ([2d240fe](https://github.com/liuyinz/emacs.d/commit/2d240fe229a8d9eb7f67e19d6cf35e46071259e8))
-* propertize filename, line number in candidates ([861d1d3](https://github.com/liuyinz/emacs.d/commit/861d1d34d4a7d82306a4a85831b2873406ea50ed))
+- add command consult-todo-all - ([a88f6e5](https://github.com/liuyinz/consult-todo/commit/a88f6e5d6a10635d61d42b138c73ea09f9e926b4))
+- propertize filename, line number in candidates - ([7099e66](https://github.com/liuyinz/consult-todo/commit/7099e6683753b1137034a5de651b12d93d3f798b))
+
+### Miscellaneous Chores
+
+- **(dependency)** only support emacs version >= 27.1 - ([f44ee9b](https://github.com/liuyinz/consult-todo/commit/f44ee9b955e69c9216ecfabd2180ac4130fa6648))
+- **(init)** init commit - ([a4715b8](https://github.com/liuyinz/consult-todo/commit/a4715b85e67612407105d3277baf7fee26ae45c6))
+
+### Refactoring
+
+- only search keywords in comments - ([71ec002](https://github.com/liuyinz/consult-todo/commit/71ec0022b6eb6d5b2c29eb400e4b15decc1b3929))
+- simplify internal functions - ([15f9a04](https://github.com/liuyinz/consult-todo/commit/15f9a04765dff8815a6d97cb621f5f6f1f69c753))
+- use cl-loop to simplify codes - ([24a617c](https://github.com/liuyinz/consult-todo/commit/24a617ca42dfbb0a2f7f351ed0186d1b1997aaf6))
+- rename some variables - ([7b89ae2](https://github.com/liuyinz/consult-todo/commit/7b89ae2ecdc3c37da93bb4fa4aae07cd4597d8bd))
+- internal functions - ([2462e45](https://github.com/liuyinz/consult-todo/commit/2462e459a18d73aa2802a1828d22c5d36c47bf3a))
+
+<!-- generated by git-cliff -->
