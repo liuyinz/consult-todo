@@ -51,6 +51,11 @@
   :type '(cons character string)
   :group 'consult-todo)
 
+(defcustom consult-todo-only-comment nil
+  "If non-nil, only search todo keywords in comments."
+  :type 'boolean
+  :group 'consult-todo)
+
 (defconst consult-todo--narrow
   '((?t . "TODO")
     (?f . "FIXME")
@@ -60,8 +65,6 @@
 
 (defvar consult-todo--narrow-extend nil
   "Default mapping of narrow and keywords include OTHER if exists.")
-
-(defvar consult-todo--regexp nil)
 
 (defun consult-todo--narrow ()
   "Return narrow alist."
@@ -80,17 +83,6 @@
         (user-error "Consult-todo-other: format error or conflicts with consult-todo-narrow")
         (setq consult-todo--narrow-extend nil))))
 
-(defun consult-todo--regexp ()
-  "Return regexp used to search to-do keywords."
-  (or consult-todo--regexp
-      (let ((orig hl-todo--regexp)
-            ;; NOTE match punctuation followed as possible
-            (hl-todo-require-punctuation nil)
-            (hl-todo-highlight-punctuation "[:punct:]"))
-        (prog1
-            (setq consult-todo--regexp (hl-todo--setup-regexp))
-          (setq-local hl-todo--regexp orig)))))
-
 (defun consult-todo--candidates (&optional buffers)
   "Return list of hl-todo keywords in current buffer.
 If optional argument BUFFERS is non-nil, operate on list of them."
@@ -103,9 +95,9 @@ If optional argument BUFFERS is non-nil, operate on list of them."
                (save-restriction
                  (widen)
                  (goto-char (point-min))
-                 (cl-loop while (re-search-forward (consult-todo--regexp) nil t)
-                          with case-fold-search = nil
-                          when (nth 4 (syntax-ppss))
+                 (cl-loop while (hl-todo--search)
+                          when (or (null consult-todo-only-comment)
+                                   (nth 4 (syntax-ppss)))
                           collect
                           ;; HACK when buffer is too large, match-string return nil
                           ;; in one match, use thing-at-point to get the match-string
