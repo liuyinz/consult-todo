@@ -76,6 +76,8 @@ Clone and add to `load-path`, require the package.
 
 - `consult-todo-other`: Cons for other missing keywords, `(?. . "OTHER")` by default.
 
+- `consult-todo-only-comment`: toggle whether only search keywords in comment
+
 ## Todo
 
 - [ ] search keywords in all project files
