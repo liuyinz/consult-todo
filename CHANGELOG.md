@@ -1,13 +1,17 @@
 # Changelog
 
-## [unreleased]
+## [0.3.0](https://github.com/liuyinz/consult-todo/compare/v0.2.0..v0.3.0) - 2023-09-06
 
 ### Documentation
 
-- **(CHANGELOG)** regenerate changelog with git-cliff - ([c8c5cf7](https://github.com/liuyinz/consult-todo/commit/c8c5cf746561c6615f8d6e2206fe2c95e68da0a0))
+- **(CHANGELOG)** regenerate changelog with git-cliff - ([8629ecd](https://github.com/liuyinz/consult-todo/commit/8629ecdf97bda5fcce120c76622cce2d470dddd9))
 - **(README)** update README - ([72c63d5](https://github.com/liuyinz/consult-todo/commit/72c63d57b826d44cffb17b1d7895f94a6392c9af))
 - **(README)** add Todo list - ([973d413](https://github.com/liuyinz/consult-todo/commit/973d413e9ba8d72a6f32a61507a3362baca80279))
 - **(README)** update install informations - ([c3c5053](https://github.com/liuyinz/consult-todo/commit/c3c50533aec82522f63ba2903a61bf510eea46f2))
+
+### Features
+
+- add option consult-todo-only-comment - ([eca0bcb](https://github.com/liuyinz/consult-todo/commit/eca0bcb63755a083b880fde5e64103b58e22b0e4))
 
 ### Miscellaneous Chores
 
