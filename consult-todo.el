@@ -35,6 +35,10 @@
                    (require 'pcase))
 (require 'consult)
 (require 'hl-todo)
+(require 'compile)
+(require 'grep)
+
+(declare-function project-root "project")
 
 (defgroup consult-todo nil
   "Search hl-todo keywords in consult."
@@ -80,15 +84,50 @@
                 ((and (stringp group) (not (rassoc group (consult-todo--narrow))))))
           (setq consult-todo--narrow-extend
                 (cons consult-todo-other (consult-todo--narrow)))
-        (user-error "Consult-todo-other: format error or conflicts with consult-todo-narrow")
+        (user-error
+         "Consult-todo-other: format error or conflicts with consult-todo-narrow")
         (setq consult-todo--narrow-extend nil))))
 
-(defun consult-todo--candidates (&optional buffers)
+(defun consult-todo--format (candidates)
+  "Return formatted string according to CANDIDATES."
+  (if candidates
+      (mapcar
+       (pcase-lambda (`(,name ,line ,type ,pos ,narrow ,text))
+         (propertize
+          (format (apply #'format "%%-%ds %%-%ds %%-%ds %%s"
+                         (cl-loop for i to 2
+                                  collect (seq-max (mapcar
+                                                    (lambda(x) (length (nth i x)))
+                                                    candidates))))
+                  (propertize name 'face 'consult-file)
+                  (propertize line 'face 'consult-line-number)
+                  ;; WONTFIX don't support regexp keywords face
+                  (propertize type 'face (hl-todo--combine-face
+                                          (cdr (assoc type hl-todo-keyword-faces))))
+                  text)
+          'consult-location (cons pos line)
+          'consult--type narrow))
+       candidates)
+    (user-error "No hl-todo keywords")))
+
+(defun consult-todo-grep-state ()
+  "Lookup SELECTED in CANDIDATES list of `consult-location' category.
+Return the location marker."
+  (let ((open (consult--temporary-files))
+        (jump (consult--jump-state)))
+    (lambda (action cand)
+      (unless cand (funcall open))
+      (when cand
+        (setq cand (car (get-text-property 0 'consult-location cand)))
+        (funcall jump action (consult--marker-from-line-column
+                              (funcall (or (and (not (eq action 'return)) open)
+                                           #'find-file-noselect) (car cand))
+                              (nth 1 cand) (nth 2 cand)))))))
+
+(defun consult-todo--candidates (buffers)
   "Return list of hl-todo keywords in current buffer.
 If optional argument BUFFERS is non-nil, operate on list of them."
   (cl-loop for buf in (or buffers (list (current-buffer)))
-           ;; with gc-cons-threshold = most-positive-fixnum
-           ;; with gc-cons-percentage = 1.0
            append
            (with-current-buffer buf
              (save-excursion
@@ -120,36 +159,66 @@ If optional argument BUFFERS is non-nil, operate on list of them."
                                                 (point)
                                                 (line-end-position)))))))))))
 
-(defun consult-todo--format (candidates)
-  "Return formatted string according to CANDIDATES."
-  (if candidates
-      (mapcar
-       (pcase-lambda (`(,buffer ,line ,type ,marker ,narrow ,text))
-         (propertize
-          (format (apply #'format "%%-%ds %%-%ds %%-%ds %%s"
-                         (cl-loop for i to 2
-                                  collect (seq-max (mapcar
-                                                    (lambda(x) (length (nth i x)))
-                                                    candidates))))
-                  (propertize buffer 'face 'consult-file)
-                  (propertize line   'face 'consult-line-number)
-                  ;; WONTFIX don't support regexp keywords face
-                  (propertize type   'face (hl-todo--combine-face
-                                            (cdr (assoc type hl-todo-keyword-faces))))
-                  text)
-          'consult-location (cons marker line)
-          'consult--type narrow))
-       candidates)
-    (user-error "No hl-todo keywords")))
+(defun consult-todo--candidates-rgrep (buffer message)
+  "Return list of hl-todo keywords in directory where rgrep running.
+BUFFER is the rgrep buffer, MESSAGE is the status of rgrep."
+  (consult--forbid-minibuffer)
+  (consult--read
+   (consult-todo--format
+    (unwind-protect
+        (when (and (string-match-p "^finished" message)
+                   (string-prefix-p "*consult-todo-" (buffer-name buffer)))
+          (with-current-buffer buffer
+            (goto-char (point-min))
+            (cl-loop while (and (null (eobp))
+                                (condition-case nil
+                                    (progn
+                                      (compilation-next-error 1)
+                                      t)
+                                  (user-error nil)))
+                     when (save-excursion
+                            (save-match-data
+                              (text-property-search-forward 'font-lock-face 'match t)))
+                     collect
+                     (let* ((msg (get-text-property (point) 'compilation-message))
+                            (loc (compilation--message->loc msg))
+                            (line (compilation--loc->line loc))
+                            (col (compilation--loc->col loc))
+                            (file (caar (compilation--loc->file-struct loc)))
+                            (type (buffer-substring-no-properties
+                                   (prop-match-beginning it)
+                                   (prop-match-end it))))
+                       (list (file-name-nondirectory file)
+                             (number-to-string line)
+                             type
+                             (list (expand-file-name file compilation-directory)
+                                   line col)
+                             (car (or (rassoc type (consult-todo--narrow))
+                                      consult-todo-other))
+                             (string-trim
+                              (buffer-substring-no-properties
+                               (prop-match-end it)
+                               (line-end-position))))))))
+      (kill-buffer buffer)
+      (remove-hook 'compilation-finish-functions #'consult-todo--candidates-rgrep)))
+   :prompt "Go to hl-todo in dir: "
+   :category 'consult-grep
+   :require-match t
+   :sort nil
+   :group (consult--type-group (consult-todo--narrow-extend))
+   :narrow (consult--type-narrow (consult-todo--narrow-extend))
+   :lookup #'consult--lookup-member
+   :state (consult-todo-grep-state)))
 
 ;;;###autoload
 (defun consult-todo (&optional buffers)
-  "Jump to hl-todo keywords in current buffer.
+  "Jump to hl-todo keywords.
 If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
   (interactive "P")
   (consult--forbid-minibuffer)
   (consult--read
-   (consult-todo--format (consult-todo--candidates buffers))
+   (consult-todo--format
+    (consult-todo--candidates buffers))
    :prompt "Go to hl-todo: "
    :category 'consult-location
    :require-match t
@@ -160,10 +229,39 @@ If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
    :state (consult--jump-state)))
 
 ;;;###autoload
-(defun consult-todo-all ()
-  "Jump to hl-todo keywords in all live buffers."
+(defun consult-todo-dir (&optional directory files)
+  "Jump to hl-todo keywords in FILES in DIRECTORY.
+If optinal arg FILES is nil, search in all files.
+If optional arg DIRECTORY is nil, rgrep in default directory."
   (interactive)
-  (consult-todo (buffer-list)))
+  (let* ((files (or files "* .*"))
+         (directory (or directory default-directory)))
+    (add-hook 'compilation-finish-functions #'consult-todo--candidates-rgrep)
+    (cl-letf ((compilation-buffer-name-function
+               (lambda (&rest _) (format "*consult-todo-%s*" directory))))
+      (save-window-excursion
+        (let ((grep-command "grep --color=auto -nH --null -I -e "))
+        (rgrep (hl-todo--regexp) files directory))))))
+
+;;;###autoload
+(defun consult-todo-all ()
+  "Jump to hl-todo keywords in all `hl-todo-mode' enabled buffers."
+  (interactive)
+  (consult-todo (seq-filter (lambda (x)
+                              (buffer-local-value 'hl-todo-mode x))
+                            (buffer-list))))
+
+;;;###autoload
+(defun consult-todo-project ()
+  "Jump to hl-todo keywords in current project."
+  (interactive)
+  (consult-todo-dir
+   (when-let ((project (project-current)))
+     (expand-file-name
+      (if (fboundp 'project-root)
+          (project-root project)
+        (car (with-no-warnings
+               (project-roots project))))))))
 
 (provide 'consult-todo)
 ;;; consult-todo.el ends here
