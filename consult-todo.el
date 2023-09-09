@@ -120,8 +120,10 @@ Return the location marker."
       (when cand
         (setq cand (car (get-text-property 0 'consult-location cand)))
         (funcall jump action (consult--marker-from-line-column
-                              (funcall (or (and (not (eq action 'return)) open)
-                                           #'find-file-noselect) (car cand))
+                              (ignore-errors
+                                (funcall (or (and (not (eq action 'return)) open)
+                                             #'find-file-noselect)
+                                         (nth 0 cand)))
                               (nth 1 cand) (nth 2 cand)))))))
 
 (defun consult-todo--candidates (buffers)
@@ -241,7 +243,7 @@ If optional arg DIRECTORY is nil, rgrep in default directory."
                (lambda (&rest _) (format "*consult-todo-%s*" directory))))
       (save-window-excursion
         (let ((grep-command "grep --color=auto -nH --null -I -e "))
-        (rgrep (hl-todo--regexp) files directory))))))
+          (rgrep (hl-todo--regexp) files directory))))))
 
 ;;;###autoload
 (defun consult-todo-all ()
