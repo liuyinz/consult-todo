@@ -56,8 +56,22 @@
   :group 'consult-todo)
 
 (defcustom consult-todo-only-comment nil
-  "If non-nil, only search todo keywords in comments."
+  "If non-nil, only search todo keywords in comments.
+Only effective on buffers."
   :type 'boolean
+  :group 'consult-todo)
+
+(defcustom consult-todo-dir-preview-key nil
+  "Preview trigger keys for `consult-todo-dir' related command.
+Value can be nil, `any', a single key or a list of keys."
+  :type '(choice (const :tag "Any key" any)
+                 (list :tag "Debounced"
+                       (const :debounce)
+                       (float :tag "Seconds" 0.1)
+                       (const any))
+                 (const :tag "No preview" nil)
+                 (key :tag "Key")
+                 (repeat :tag "List of keys" key))
   :group 'consult-todo)
 
 (defconst consult-todo--narrow
@@ -207,6 +221,7 @@ BUFFER is the rgrep buffer, MESSAGE is the status of rgrep."
    :category 'consult-grep
    :require-match t
    :sort nil
+   :preview-key consult-todo-dir-preview-key
    :group (consult--type-group (consult-todo--narrow-extend))
    :narrow (consult--type-narrow (consult-todo--narrow-extend))
    :lookup #'consult--lookup-member
