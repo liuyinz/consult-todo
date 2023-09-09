@@ -61,6 +61,14 @@ Clone and add to `load-path`, require the package.
 (use-package consult-todo :demand t)
 ```
 
+- `consult-todo`: search in current buffer
+
+- `consult-todo-all`: search in all `hl-todo-mode` enabled buffers
+
+- `consult-todo-dir`: search in current directory
+
+- `consult-todo-project`: search in current project
+
 ## Customization
 
 - `consult-todo-narrow`: Mapping of narrows and keywords, if it's nil, use default value below instead.
@@ -76,11 +84,11 @@ Clone and add to `load-path`, require the package.
 
 - `consult-todo-other`: Cons for other missing keywords, `(?. . "OTHER")` by default.
 
-- `consult-todo-only-comment`: toggle whether only search keywords in comment
+- `consult-todo-only-comment`: toggle whether only search keywords in comment, only effective on buffers
 
 ## Todo
 
-- [ ] search keywords in all project files
+- [x] search keywords in all project files
 
 ## License
 
