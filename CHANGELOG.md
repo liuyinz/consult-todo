@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/liuyinz/consult-todo/compare/v0.4.0..v0.4.0) - 2023-09-09
+
+### Documentation
+
+- update customizations in README - ([37c7b22](https://github.com/liuyinz/consult-todo/commit/37c7b22706f8421622acff39aca62e8e42fbeaf1))
+- update usage description - ([76e6f16](https://github.com/liuyinz/consult-todo/commit/76e6f1619b26fc13af0551015baf82bd482a5962))
+
+### Features
+
+- add command consult-todo-dir and consult-todo-project - ([3820204](https://github.com/liuyinz/consult-todo/commit/38202047cd2aabcfaece9439d79925a062341311))
+
 ## [0.3.0](https://github.com/liuyinz/consult-todo/compare/v0.2.0..v0.3.0) - 2023-09-06
 
 ### Documentation
