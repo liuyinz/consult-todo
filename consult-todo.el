@@ -74,6 +74,18 @@ Value can be nil, `any', a single key or a list of keys."
                  (repeat :tag "List of keys" key))
   :group 'consult-todo)
 
+(defcustom consult-todo-ignore-directories grep-find-ignored-directories
+  "List of names of sub-directories which `consult-todo' shall exclude.
+
+The default value is inherited from `grep-find-ignored-directories'."
+  :group 'consult-todo)
+
+(defcustom consult-todo-ignore-files grep-find-ignored-files
+  "List of file names which `consult-todo' shall exclude.
+
+The default value is inherited from `grep-find-ignored-files'."
+  :group 'consult-todo)
+
 (defconst consult-todo--narrow
   '((?t . "TODO")
     (?f . "FIXME")
@@ -257,7 +269,9 @@ If optional arg DIRECTORY is nil, rgrep in default directory."
     (cl-letf ((compilation-buffer-name-function
                (lambda (&rest _) (format "*consult-todo-%s*" directory))))
       (save-window-excursion
-        (let ((grep-command "grep --color=auto -nH --null -I -e "))
+        (let ((grep-command "grep --color=auto -nH --null -I -e ")
+	      (grep-find-ignored-directories consult-todo-ignore-directories)
+	      (grep-find-ignored-files consult-todo-ignore-files))
           (rgrep (hl-todo--regexp) files directory))))))
 
 ;;;###autoload
