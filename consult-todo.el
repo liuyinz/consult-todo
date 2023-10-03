@@ -245,6 +245,9 @@ If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
    :lookup #'consult--lookup-location
    :state (consult--jump-state)))
 
+;; FIXME return "error in process sentinel: No hl-todo keywords/Quit" if
+;; candidates list is empty or cancel jumping. Preparing to rewrite it totally.
+;; Use it as little as possible
 ;;;###autoload
 (defun consult-todo-dir (&optional directory files)
   "Jump to hl-todo keywords in FILES in DIRECTORY.

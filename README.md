@@ -65,6 +65,8 @@ Clone and add to `load-path`, require the package.
 
 - `consult-todo-all`: search in all `hl-todo-mode` enabled buffers
 
+**Warning**: commands below is still buggy, use it as little as possible
+
 - `consult-todo-dir`: search in current directory
 
 - `consult-todo-project`: search in current project
