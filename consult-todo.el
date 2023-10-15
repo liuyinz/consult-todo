@@ -31,8 +31,11 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl-lib)
-                   (require 'pcase))
+(eval-when-compile
+  (require 'cl-lib)
+  (require 'pcase)
+  (require 'subr-x))
+
 (require 'consult)
 (require 'hl-todo)
 (require 'compile)
