@@ -1,6 +1,22 @@
 # Changelog
 
-## [0.4.0](https://github.com/liuyinz/consult-todo/compare/v0.4.0..v0.4.0) - 2023-09-09
+## [0.4.1](https://github.com/liuyinz/consult-todo/compare/v0.4.0..v0.4.1) - 2023-10-22
+
+### Bug Fixes
+
+- suppress errors when don't jump - ([77aed95](https://github.com/liuyinz/consult-todo/commit/77aed9580fdd829b84fa020b5921a5461e83afd4))
+- silent compiler warnings - ([63dc4b7](https://github.com/liuyinz/consult-todo/commit/63dc4b72f0bd98c44f73bd6a059566e95d324d20))
+
+### Documentation
+
+- **(README)** update melpa installation section - ([81554f1](https://github.com/liuyinz/consult-todo/commit/81554f1d684e5f280e7d45d1b95996e4a8e9137a))
+- add warning about bugs in README and codes docstring - ([ff00363](https://github.com/liuyinz/consult-todo/commit/ff00363abcb4611563bc40b9192ac3197f75dc98))
+
+### Features
+
+- add consult-todo-dir-preview-key, disable preview by default - ([6da541a](https://github.com/liuyinz/consult-todo/commit/6da541a8dcaf245d7a44293bce990292e95639bd))
+
+## [0.4.0](https://github.com/liuyinz/consult-todo/compare/v0.3.0..v0.4.0) - 2023-09-09
 
 ### Documentation
 

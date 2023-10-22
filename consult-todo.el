@@ -5,7 +5,7 @@
 ;; Author: liuyinz <liuyinz@gmail.com>
 ;; Maintainer: liuyinz <liuyinz@gmail.com>
 ;; Created: 2021-10-03 03:44:36
-;; Version: 0.4.0
+;; Version: 0.4.1
 ;; Package-Requires: ((emacs "27.1") (consult "0.35") (hl-todo "3.1.2"))
 ;; Homepage: https://github.com/liuyinz/consult-todo
 ;; License: GPL-3.0-or-later
