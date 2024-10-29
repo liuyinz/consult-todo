@@ -279,7 +279,7 @@ If optional arg DIRECTORY is nil, rgrep in default directory."
   "Jump to hl-todo keywords in current project."
   (interactive)
   (consult-todo-dir
-   (when-let ((project (project-current)))
+   (when-let* ((project (project-current)))
      (expand-file-name
       (if (fboundp 'project-root)
           (project-root project)
