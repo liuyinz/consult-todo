@@ -5,9 +5,9 @@ on:
     branches: master
   push:
     paths-ignore:
-      - '**.md'
-      - 'image/*'
-    branches: [master, 'ci/**']
+      - "**.md"
+      - "image/*"
+    branches: [master, "ci/**"]
 
 jobs:
   build:
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        emacs_version: [27.1, 27.2, 28.2, 29.1, snapshot]
+        emacs_version: [29.1, 29.2, 29.3, 29.4, snapshot]
         ignore_warnings:
           - true
 
@@ -31,6 +31,6 @@ jobs:
         uses: leotaku/elisp-check@master
         with:
           check: melpa
-          file: 'consult-todo.el'
+          file: "consult-todo.el"
           ignore_warnings: false
           warnings_as_errors: false
