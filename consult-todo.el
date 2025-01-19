@@ -178,57 +178,39 @@ If optional argument BUFFERS is non-nil, operate on list of them."
                                                 (point)
                                                 (line-end-position)))))))))))
 
-(defun consult-todo--candidates-rgrep (buffer message)
-  "Return list of hl-todo keywords in directory where rgrep running.
-BUFFER is the rgrep buffer, MESSAGE is the status of rgrep."
-  (consult--forbid-minibuffer)
-  (consult--read
-   (consult-todo--format
-    (unwind-protect
-        (when (and (string-match-p "^finished" message)
-                   (string-prefix-p "*consult-todo-" (buffer-name buffer)))
-          (with-current-buffer buffer
-            (goto-char (point-min))
-            (cl-loop while (and (null (eobp))
-                                (condition-case nil
-                                    (progn
-                                      (compilation-next-error 1)
-                                      t)
-                                  (user-error nil)))
-                     when (save-excursion
-                            (save-match-data
-                              (text-property-search-forward 'font-lock-face 'match t)))
-                     collect
-                     (let* ((msg (get-text-property (point) 'compilation-message))
-                            (loc (compilation--message->loc msg))
-                            (line (compilation--loc->line loc))
-                            (col (compilation--loc->col loc))
-                            (file (caar (compilation--loc->file-struct loc)))
-                            (type (buffer-substring-no-properties
-                                   (prop-match-beginning it)
-                                   (prop-match-end it))))
-                       (list (file-name-nondirectory file)
-                             (number-to-string line)
-                             type
-                             (list (expand-file-name file compilation-directory)
-                                   line col)
-                             (car (or (rassoc type (consult-todo--narrow))
-                                      consult-todo-other))
-                             (string-trim
-                              (buffer-substring-no-properties
-                               (prop-match-end it)
-                               (line-end-position))))))))
-      (kill-buffer buffer)
-      (remove-hook 'compilation-finish-functions #'consult-todo--candidates-rgrep)))
-   :prompt "Go to hl-todo in dir: "
-   :category 'consult-grep
-   :require-match t
-   :sort nil
-   :preview-key consult-todo-dir-preview-key
-   :group (consult--type-group (consult-todo--narrow-extend))
-   :narrow (consult--type-narrow (consult-todo--narrow-extend))
-   :lookup #'consult--lookup-member
-   :state (consult-todo-grep-state)))
+(defun consult-todo--parse-grep (buffer)
+  (with-current-buffer buffer
+    ;; (message "event; %s" event)
+    (goto-char (point-min))
+    (cl-loop while (and (null (eobp))
+                        (condition-case nil
+                            (progn
+                              (compilation-next-error 1)
+                              t)
+                          (user-error nil)))
+             when (save-excursion
+                    (save-match-data
+                      (text-property-search-forward 'font-lock-face 'match t)))
+             collect
+             (let* ((msg (get-text-property (point) 'compilation-message))
+                    (loc (compilation--message->loc msg))
+                    (line (compilation--loc->line loc))
+                    (col (compilation--loc->col loc))
+                    (file (caar (compilation--loc->file-struct loc)))
+                    (type (buffer-substring-no-properties
+                           (prop-match-beginning it)
+                           (prop-match-end it))))
+               (list (file-name-nondirectory file)
+                     (number-to-string line)
+                     type
+                     (list (expand-file-name file compilation-directory)
+                           line col)
+                     (car (or (rassoc type (consult-todo--narrow))
+                              consult-todo-other))
+                     (string-trim
+                      (buffer-substring-no-properties
+                       (prop-match-end it)
+                       (line-end-position))))))))
 
 ;;;###autoload
 (defun consult-todo (&optional buffers)
@@ -248,24 +230,6 @@ If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
    :lookup #'consult--lookup-location
    :state (consult--jump-state)))
 
-;; FIXME return "error in process sentinel: No hl-todo keywords/Quit" if
-;; candidates list is empty or cancel jumping. Preparing to rewrite it totally.
-;; Use it as little as possible
-;;;###autoload
-(defun consult-todo-dir (&optional directory files)
-  "Jump to hl-todo keywords in FILES in DIRECTORY.
-If optinal arg FILES is nil, search in all files.
-If optional arg DIRECTORY is nil, rgrep in default directory."
-  (interactive)
-  (let* ((files (or files "* .*"))
-         (directory (or directory default-directory)))
-    (add-hook 'compilation-finish-functions #'consult-todo--candidates-rgrep)
-    (cl-letf ((compilation-buffer-name-function
-               (lambda (&rest _) (format "*consult-todo-%s*" directory))))
-      (save-window-excursion
-        (let ((grep-command "grep --color=auto -nH --null -I -e "))
-          (rgrep (hl-todo--regexp) files directory))))))
-
 ;;;###autoload
 (defun consult-todo-all ()
   "Jump to hl-todo keywords in all `hl-todo-mode' enabled buffers."
@@ -273,6 +237,42 @@ If optional arg DIRECTORY is nil, rgrep in default directory."
   (consult-todo (seq-filter (lambda (x)
                               (buffer-local-value 'hl-todo-mode x))
                             (buffer-list))))
+
+;;;###autoload
+(defun consult-todo-dir (&optional directory files)
+  "Jump to hl-todo keywords in FILES in DIRECTORY.
+If optinal arg FILES is nil, search in all files.
+If optional arg DIRECTORY is nil, rgrep in default directory."
+  (interactive)
+  (let* ((files (or files "* .*"))
+         (directory (or directory default-directory))
+         (todo-buf (format "*consult-todo-dir %s*" directory))
+         (grep-command "grep --color=auto -nH --null -I -e ")
+         result)
+    (cl-letf ((compilation-buffer-name-function
+               (lambda (&rest _) (format "%s" todo-buf))))
+      (save-window-excursion
+        (rgrep (hl-todo--regexp) files directory)
+        (set-process-sentinel
+         (get-buffer-process todo-buf)
+         (lambda (process event)
+           (unwind-protect
+               (when (string-equal "finished\n" event)
+                 (consult--forbid-minibuffer)
+                 (condition-case nil
+                     (consult--read
+                      (consult-todo--format (consult-todo--parse-grep todo-buf))
+                      :prompt "Go to hl-todo in dir: "
+                      :category 'consult-grep
+                      :require-match t
+                      :sort nil
+                      :preview-key consult-todo-dir-preview-key
+                      :group (consult--type-group (consult-todo--narrow-extend))
+                      :narrow (consult--type-narrow (consult-todo--narrow-extend))
+                      :lookup #'consult--lookup-member
+                      :state (consult-todo-grep-state))
+                   (quit (message "Quit"))))
+             (kill-buffer todo-buf))))))))
 
 ;;;###autoload
 (defun consult-todo-project ()
