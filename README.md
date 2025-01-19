@@ -63,9 +63,7 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 
 - `consult-todo-all`: search in all `hl-todo-mode` enabled buffers
 
-**Warning**: commands below is still buggy, use it as little as possible
-
-- `consult-todo-dir`: search in current directory
+- `consult-todo-dir`: search in directory
 
 - `consult-todo-project`: search in current project
 
