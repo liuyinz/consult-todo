@@ -1,6 +1,6 @@
 ;;; consult-todo.el --- Search hl-todo keywords in consult -*- lexical-binding: t -*-
 
-;; Copyright (C) 2023 liuyinz
+;; Copyright (C) 2023, 2025 liuyinz
 
 ;; Author: liuyinz <liuyinz@gmail.com>
 ;; Maintainer: liuyinz <liuyinz@gmail.com>
