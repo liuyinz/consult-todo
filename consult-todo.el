@@ -239,20 +239,18 @@ If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
                             (buffer-list))))
 
 ;;;###autoload
-(defun consult-todo-dir (&optional directory files)
-  "Jump to hl-todo keywords in FILES in DIRECTORY.
-If optinal arg FILES is nil, search in all files.
+(defun consult-todo-dir (&optional directory)
+  "Jump to hl-todo keywords in files located in DIRECTORY.
 If optional arg DIRECTORY is nil, rgrep in default directory."
   (interactive)
-  (let* ((files (or files "* .*"))
-         (directory (or directory default-directory))
+  (let* ((directory (or directory default-directory))
          (todo-buf (format "*consult-todo-dir %s*" directory))
          (grep-command "grep --color=auto -nH --null -I -e ")
          result)
     (cl-letf ((compilation-buffer-name-function
                (lambda (&rest _) (format "%s" todo-buf))))
       (save-window-excursion
-        (rgrep (hl-todo--regexp) files directory)
+        (rgrep (hl-todo--regexp) "* .*" directory)
         (set-process-sentinel
          (get-buffer-process todo-buf)
          (lambda (process event)
