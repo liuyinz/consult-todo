@@ -82,7 +82,9 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 
 - `consult-todo-other`: Cons for other missing keywords, `(?. . "OTHER")` by default.
 
-- `consult-todo-only-comment`: toggle whether only search keywords in comment, only effective on buffers
+- `consult-todo-only-comment`: Toggle whether only search keywords in comment, only effective on buffers
+
+- `consult-todo-cache-threshold`: "Time threshold in seconds for using cache when greping is time-consuming
 
 ## Todo
 

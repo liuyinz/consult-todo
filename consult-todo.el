@@ -81,7 +81,7 @@ Value can be nil, `any', a single key or a list of keys."
   :group 'consult-todo)
 
 (defcustom consult-todo-cache-threshold 3
-  "The time threshold in seconds for using cache when running `consult-todo`."
+  "The time threshold in seconds for using cache when greping is time-consuming."
   :type 'number
   :group 'consult)
 
