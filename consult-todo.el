@@ -1,13 +1,13 @@
 ;;; consult-todo.el --- Search hl-todo keywords in consult -*- lexical-binding: t -*-
 
-;; Copyright (C) 2023, 2025 liuyinz
+;; Copyright (C) 2023-2025 Eki Zhang
 
-;; Author: liuyinz <liuyinz@gmail.com>
-;; Maintainer: liuyinz <liuyinz@gmail.com>
+;; Author: Eki Zhang <liuyinz95@gmail.com>
+;; Maintainer: Eki Zhang <liuyinz95@gmail.com>
 ;; Created: 2021-10-03 03:44:36
 ;; Version: 0.4.1
 ;; Package-Requires: ((emacs "29.1") (consult "1.9") (hl-todo "3.8.2"))
-;; Homepage: https://github.com/liuyinz/consult-todo
+;; Homepage: https://github.com/eki3z/consult-todo
 ;; License: GPL-3.0-or-later
 
 ;; This file is not a part of GNU Emacs.
