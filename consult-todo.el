@@ -80,6 +80,11 @@ Value can be nil, `any', a single key or a list of keys."
                  (repeat :tag "List of keys" key))
   :group 'consult-todo)
 
+(defcustom consult-todo-cache-threshold 3
+  "The time threshold in seconds for using cache when running `consult-todo`."
+  :type 'number
+  :group 'consult)
+
 (defconst consult-todo--narrow
   '((?t . "TODO")
     (?f . "FIXME")
@@ -181,9 +186,9 @@ If optional argument BUFFERS is non-nil, operate on list of them."
                                                 (point)
                                                 (line-end-position)))))))))))
 
-(defun consult-todo--parse-grep (buffer)
+(defun consult-todo--parse (buffer)
+  "Return matched result in grep BUFFER."
   (with-current-buffer buffer
-    ;; (message "event; %s" event)
     (goto-char (point-min))
     (cl-loop while (and (null (eobp))
                         (condition-case nil
@@ -241,38 +246,74 @@ If BUFFERS is non-nil, prompt with hl-todo keywords in them instead."
                               (buffer-local-value 'hl-todo-mode x))
                             (buffer-list))))
 
+(defvar consult-todo--cache nil)
+
+(defun consult-todo--dir (candidates)
+  "Jump to hl-todo keywords with CANDIDATES."
+  (consult--forbid-minibuffer)
+  (consult--read
+   (consult-todo--format candidates)
+   :prompt "Go to hl-todo in dir: "
+   :category 'consult-grep
+   :require-match t
+   :sort nil
+   :preview-key consult-todo-dir-preview-key
+   :group (consult--type-group (consult-todo--narrow-extend))
+   :narrow (consult--type-narrow (consult-todo--narrow-extend))
+   :lookup #'consult--lookup-member
+   :state (consult-todo-grep-state)))
+
+;;;###autoload
+(defun consult-todo-clear-cache (&optional all)
+  "Clear cache stored in `consult-todo--cache'.
+If arg ALL is non-nil, clear all cache."
+  (interactive "P")
+  (if-let* ((dirs (mapcar #'car consult-todo--cache)))
+      (if all
+          (setq consult-todo--cache nil)
+        (when-let* ((dir (completing-read "consult-todo: clear cache in " dirs nil t)))
+          (setf (alist-get dir consult-todo--cache nil 'remove #'equal) nil)))
+    (message "consult-todo: no cache yet.")))
+
 ;;;###autoload
 (defun consult-todo-dir (&optional directory)
   "Jump to hl-todo keywords in files located in DIRECTORY.
 If optional arg DIRECTORY is nil, rgrep in default directory."
   (interactive)
-  (let* ((directory (or directory default-directory))
-         (todo-buf (format "*consult-todo-dir %s*" directory))
-         (grep-command "grep --color=auto -nH --null -I -e "))
-    (cl-letf ((compilation-buffer-name-function
-               (lambda (&rest _) (format "%s" todo-buf))))
-      (save-window-excursion
-        (rgrep (hl-todo--regexp) "* .*" directory)
-        (set-process-sentinel
-         (get-buffer-process todo-buf)
-         (lambda (_ event)
-           (unwind-protect
-               (when (string-equal "finished\n" event)
-                 (consult--forbid-minibuffer)
-                 (condition-case nil
-                     (consult--read
-                      (consult-todo--format (consult-todo--parse-grep todo-buf))
-                      :prompt "Go to hl-todo in dir: "
-                      :category 'consult-grep
-                      :require-match t
-                      :sort nil
-                      :preview-key consult-todo-dir-preview-key
-                      :group (consult--type-group (consult-todo--narrow-extend))
-                      :narrow (consult--type-narrow (consult-todo--narrow-extend))
-                      :lookup #'consult--lookup-member
-                      :state (consult-todo-grep-state))
-                   (quit (message "Quit"))))
-             (kill-buffer todo-buf))))))))
+  (let* ((dir (or directory default-directory)))
+    (if-let* ((result (alist-get dir consult-todo--cache
+                                 nil nil #'equal)))
+        (consult-todo--dir result)
+      (let* ((todo-buf (format "*consult-todo-dir %s*" dir))
+             (grep-command "grep --color=auto -nH --null -I -e ")
+             cache-p)
+        (cl-letf ((compilation-buffer-name-function
+                   (lambda (&rest _) (format "%s" todo-buf))))
+          (save-window-excursion
+            (rgrep (hl-todo--regexp) "* .*" dir)
+            (let ((proc (get-buffer-process todo-buf)))
+              (run-with-timer
+               consult-todo-cache-threshold nil
+               (lambda ()
+                 (when (and proc (process-live-p proc)
+                            (eq (process-status proc) 'run))
+                   (message "consult-todo: %s is caching !" dir)
+                   (setq cache-p t))))
+              (set-process-sentinel
+               proc
+               (lambda (_ event)
+                 (unwind-protect
+                     (when (string-equal "finished\n" event)
+                       (let ((result (consult-todo--parse todo-buf)))
+                         (if (null cache-p)
+                             (condition-case nil
+                                 (consult-todo--dir result)
+                               (quit (message "Quit")))
+                           (setf (alist-get dir consult-todo--cache
+                                            nil nil #'equal)
+                                 result)
+                           (message "consult-todo: %s is cached already !" dir))))
+                   (kill-buffer todo-buf)))))))))))
 
 ;;;###autoload
 (defun consult-todo-project ()
