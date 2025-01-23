@@ -36,10 +36,11 @@
   (require 'pcase)
   (require 'subr-x))
 
-(require 'consult)
-(require 'hl-todo)
+(require 'seq)
 (require 'compile)
 (require 'grep)
+(require 'consult)
+(require 'hl-todo)
 
 (declare-function project-root "project")
 
