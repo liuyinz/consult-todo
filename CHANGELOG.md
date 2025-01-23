@@ -1,6 +1,35 @@
 # Changelog
 
-## [0.4.1](https://github.com/liuyinz/consult-todo/compare/v0.4.0..v0.4.1) - 2023-10-22
+## [0.5.0](https://github.com/liuyinz/consult-todo/compare/v0.4.1..v0.5.0) - 2025-01-23
+
+### Bug Fixes
+
+- sentinel error in consult-todo-dir - ([e44575d](https://github.com/liuyinz/consult-todo/commit/e44575d1b06ad5d8a2d8eaef20b83553d17159f4))
+- remove useless var - ([6e99ad8](https://github.com/liuyinz/consult-todo/commit/6e99ad8a07605b32040e99ac1ac3971ab2db33fa))
+- add missing dependency - ([3939acd](https://github.com/liuyinz/consult-todo/commit/3939acd59f164cffb0a3150d4a281079f6f1890f))
+
+### Documentation
+
+- update readme - ([bccc29f](https://github.com/liuyinz/consult-todo/commit/bccc29f0485e718bf1dbf0688815a20fb80dad2e))
+- update README - ([d454a50](https://github.com/liuyinz/consult-todo/commit/d454a50e9f3847b7cddaaec38e085678dcb8a894))
+
+### Features
+
+- add cache mechanism in consult-todo-dir - ([f623dd0](https://github.com/liuyinz/consult-todo/commit/f623dd0f996395f83d06bae203fc81ffb89012d1))
+
+### Miscellaneous Chores
+
+- update dependency versions - ([b47c8f9](https://github.com/liuyinz/consult-todo/commit/b47c8f9a11c4f569683349d331c257fbfe7a078d))
+- update copyright - ([07a540e](https://github.com/liuyinz/consult-todo/commit/07a540e45dcb80cdcdfb913a643353ad8cdc4516))
+- add more todos - ([f24dcc8](https://github.com/liuyinz/consult-todo/commit/f24dcc87a0d7dd6311617f33bfcf0e4d357af014))
+- update author and homepage - ([d136f85](https://github.com/liuyinz/consult-todo/commit/d136f85388072d9d4da0be9a5838772c898d69ee))
+
+### Refactoring
+
+- simplify consult-todo-dir command - ([488e179](https://github.com/liuyinz/consult-todo/commit/488e179c9232eb21be138c6c2d489270365f89fc))
+- save formatted candidates to cache to improve in big repo - ([af8016f](https://github.com/liuyinz/consult-todo/commit/af8016ff26a8ccd5b07fcf6896a95fa28fcfca8b))
+
+## [0.4.1](https://github.com/liuyinz/consult-todo/compare/v0.3.0..v0.4.1) - 2023-10-22
 
 ### Bug Fixes
 
@@ -10,22 +39,14 @@
 ### Documentation
 
 - **(README)** update melpa installation section - ([81554f1](https://github.com/liuyinz/consult-todo/commit/81554f1d684e5f280e7d45d1b95996e4a8e9137a))
+- update customizations in README - ([37c7b22](https://github.com/liuyinz/consult-todo/commit/37c7b22706f8421622acff39aca62e8e42fbeaf1))
+- update usage description - ([76e6f16](https://github.com/liuyinz/consult-todo/commit/76e6f1619b26fc13af0551015baf82bd482a5962))
 - add warning about bugs in README and codes docstring - ([ff00363](https://github.com/liuyinz/consult-todo/commit/ff00363abcb4611563bc40b9192ac3197f75dc98))
 
 ### Features
 
-- add consult-todo-dir-preview-key, disable preview by default - ([6da541a](https://github.com/liuyinz/consult-todo/commit/6da541a8dcaf245d7a44293bce990292e95639bd))
-
-## [0.4.0](https://github.com/liuyinz/consult-todo/compare/v0.3.0..v0.4.0) - 2023-09-09
-
-### Documentation
-
-- update customizations in README - ([37c7b22](https://github.com/liuyinz/consult-todo/commit/37c7b22706f8421622acff39aca62e8e42fbeaf1))
-- update usage description - ([76e6f16](https://github.com/liuyinz/consult-todo/commit/76e6f1619b26fc13af0551015baf82bd482a5962))
-
-### Features
-
 - add command consult-todo-dir and consult-todo-project - ([3820204](https://github.com/liuyinz/consult-todo/commit/38202047cd2aabcfaece9439d79925a062341311))
+- add consult-todo-dir-preview-key, disable preview by default - ([6da541a](https://github.com/liuyinz/consult-todo/commit/6da541a8dcaf245d7a44293bce990292e95639bd))
 
 ## [0.3.0](https://github.com/liuyinz/consult-todo/compare/v0.2.0..v0.3.0) - 2023-09-06
 

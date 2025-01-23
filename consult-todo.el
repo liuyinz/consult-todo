@@ -5,7 +5,7 @@
 ;; Author: Eki Zhang <liuyinz95@gmail.com>
 ;; Maintainer: Eki Zhang <liuyinz95@gmail.com>
 ;; Created: 2021-10-03 03:44:36
-;; Version: 0.4.1
+;; Version: 0.5.0
 ;; Package-Requires: ((emacs "29.1") (consult "1.9") (hl-todo "3.8.2"))
 ;; Homepage: https://github.com/eki3z/consult-todo
 ;; License: GPL-3.0-or-later
