@@ -278,9 +278,13 @@ If arg ALL is non-nil, clear all cache."
 ;;;###autoload
 (defun consult-todo-dir (&optional directory)
   "Jump to hl-todo keywords in files located in DIRECTORY.
-If optional arg DIRECTORY is nil, rgrep in default directory."
+If optional arg DIRECTORY is nil, rgrep in default directory. With
+\\[universal-argument] enable, select DIRECTORY instead."
   (interactive)
-  (let* ((dir (or directory default-directory)))
+  (let* ((dir (or directory
+                  (and current-prefix-arg
+                       (read-directory-name "select directory: "))
+                  default-directory)))
     (if-let* ((result (alist-get dir consult-todo--cache
                                  nil nil #'equal)))
         (consult-todo--dir result)

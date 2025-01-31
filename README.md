@@ -63,7 +63,7 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 
 - `consult-todo-all`: search in all `hl-todo-mode` enabled buffers
 
-- `consult-todo-dir`: search in directory
+- `consult-todo-dir`: search in selected directory
 
 - `consult-todo-project`: search in current project
 
@@ -84,7 +84,7 @@ Install with `M-x package-install` `RET` `consult-todo` within Emacs.
 
 - `consult-todo-only-comment`: Toggle whether only search keywords in comment, only effective on buffers
 
-- `consult-todo-cache-threshold`: "Time threshold in seconds for using cache when greping is time-consuming
+- `consult-todo-cache-threshold`: Time threshold in seconds for using cache when greping is time-consuming
 
 ## Todo
 
