@@ -81,7 +81,13 @@ Value can be nil, `any', a single key or a list of keys."
 (defcustom consult-todo-cache-threshold 3
   "The time threshold in seconds for using cache when grepping is time-consuming."
   :type 'number
-  :group 'consult)
+  :group 'consult-todo)
+
+(defcustom consult-todo-dir-function #'consult-todo--rgrep
+  "The function used to grep keywords in directory.
+Accept one argument: the directory to search in."
+  :type 'function
+  :group 'consult-todo)
 
 (defconst consult-todo--narrow
   '((?t . "TODO")
@@ -185,39 +191,69 @@ Return the location marker."
                                                 (point)
                                                 (line-end-position)))))))))))
 
-(defun consult-todo--parse-grep (buffer)
-  "Return list of hl-todo keywords in grep BUFFER."
-  (with-current-buffer buffer
-    (goto-char (point-min))
-    (cl-loop while (and (null (eobp))
-                        (condition-case nil
-                            (progn
-                              (compilation-next-error 1)
-                              t)
-                          (user-error nil)))
-             when (save-excursion
-                    (save-match-data
-                      (text-property-search-forward 'font-lock-face 'match t)))
-             collect
-             (let* ((msg (get-text-property (point) 'compilation-message))
-                    (loc (compilation--message->loc msg))
-                    (line (compilation--loc->line loc))
-                    (col (compilation--loc->col loc))
-                    (file (caar (compilation--loc->file-struct loc)))
-                    (type (buffer-substring-no-properties
-                           (prop-match-beginning it)
-                           (prop-match-end it))))
-               (list (file-name-nondirectory file)
-                     (number-to-string line)
-                     type
-                     (list (expand-file-name file compilation-directory)
-                           line col)
-                     (car (or (rassoc type (consult-todo--narrow))
-                              consult-todo-other))
-                     (string-trim
-                      (buffer-substring-no-properties
-                       (prop-match-end it)
-                       (line-end-position))))))))
+(defun consult-todo--rgrep (dir)
+  "Function to use rgrep to search keywords in DIR."
+  (let* ((todo-buf (format "*consult-todo-dir %s*" dir))
+         (grep-command "grep --color=auto -nH --null -I -e ")
+         cache-p)
+    (cl-letf ((compilation-buffer-name-function
+               (lambda (&rest _) (format "%s" todo-buf))))
+      (rgrep (hl-todo--regexp) "* .*" dir)
+      (let ((proc (get-buffer-process todo-buf)))
+        (run-with-timer
+         consult-todo-cache-threshold nil
+         (lambda ()
+           (when (and proc (process-live-p proc)
+                      (eq (process-status proc) 'run))
+             (message "consult-todo: dir %s is caching!" dir)
+             (setq cache-p t))))
+        (set-process-sentinel
+         proc
+         (lambda (_ event)
+           (unwind-protect
+               (when (string-equal "finished\n" event)
+                 (let ((result
+                        (consult-todo--format
+                         (with-current-buffer todo-buf
+                           (goto-char (point-min))
+                           (cl-loop while (and (null (eobp))
+                                               (condition-case nil
+                                                   (progn
+                                                     (compilation-next-error 1)
+                                                     t)
+                                                 (user-error nil)))
+                                    when (save-excursion
+                                           (save-match-data
+                                             (text-property-search-forward 'font-lock-face 'match t)))
+                                    collect
+                                    (let* ((msg (get-text-property (point) 'compilation-message))
+                                           (loc (compilation--message->loc msg))
+                                           (line (compilation--loc->line loc))
+                                           (col (compilation--loc->col loc))
+                                           (file (caar (compilation--loc->file-struct loc)))
+                                           (type (buffer-substring-no-properties
+                                                  (prop-match-beginning it)
+                                                  (prop-match-end it))))
+                                      (list (file-name-nondirectory file)
+                                            (number-to-string line)
+                                            type
+                                            (list (expand-file-name file compilation-directory)
+                                                  line col)
+                                            (car (or (rassoc type (consult-todo--narrow))
+                                                     consult-todo-other))
+                                            (string-trim
+                                             (buffer-substring-no-properties
+                                              (prop-match-end it)
+                                              (line-end-position))))))))))
+                   (if (null cache-p)
+                       (condition-case nil
+                           (consult-todo--dir result)
+                         (quit (message "Quit")))
+                     (setf (alist-get dir consult-todo--cache
+                                      nil nil #'equal)
+                           result)
+                     (message "consult-todo: dir %s caching complete!" dir))))
+             (kill-buffer todo-buf))))))))
 
 ;;;###autoload
 (defun consult-todo (&optional buffers)
@@ -288,37 +324,8 @@ If optional arg DIRECTORY is nil, rgrep in default directory. With
     (if-let* ((result (alist-get dir consult-todo--cache
                                  nil nil #'equal)))
         (consult-todo--dir result)
-      (let* ((todo-buf (format "*consult-todo-dir %s*" dir))
-             (grep-command "grep --color=auto -nH --null -I -e ")
-             cache-p)
-        (cl-letf ((compilation-buffer-name-function
-                   (lambda (&rest _) (format "%s" todo-buf))))
-          (save-window-excursion
-            (rgrep (hl-todo--regexp) "* .*" dir)
-            (let ((proc (get-buffer-process todo-buf)))
-              (run-with-timer
-               consult-todo-cache-threshold nil
-               (lambda ()
-                 (when (and proc (process-live-p proc)
-                            (eq (process-status proc) 'run))
-                   (message "consult-todo: dir %s is caching!" dir)
-                   (setq cache-p t))))
-              (set-process-sentinel
-               proc
-               (lambda (_ event)
-                 (unwind-protect
-                     (when (string-equal "finished\n" event)
-                       (let ((result (consult-todo--format
-                                      (consult-todo--parse-grep todo-buf))))
-                         (if (null cache-p)
-                             (condition-case nil
-                                 (consult-todo--dir result)
-                               (quit (message "Quit")))
-                           (setf (alist-get dir consult-todo--cache
-                                            nil nil #'equal)
-                                 result)
-                           (message "consult-todo: dir %s caching complete!" dir))))
-                   (kill-buffer todo-buf)))))))))))
+      (save-window-excursion
+        (funcall consult-todo-dir-function dir)))))
 
 ;;;###autoload
 (defun consult-todo-project ()
